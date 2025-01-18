@@ -42,6 +42,7 @@ def validate_yaml(file_path):
 
     # Validate task
     folder_name = Path(file_path).parent.name
+    filename = Path(file_path).name
     if config.get('task') != folder_name:
         errors.append(f"📋 **Task**: Expected `{folder_name}`, found `{config.get('task')}`")
 
@@ -104,8 +105,9 @@ def validate_yaml(file_path):
     if not isinstance(nc, int) or nc <= 0:
         errors.append("🎯 **nc**: Must be an integer greater than 0")
 
+    os.chdir("..")
     if errors:
-        comment_on_pr("## ❌ YAML Validation Failed\n\n" + "\n".join(errors))
+        comment_on_pr("## ❌ `{folder_name}/{filename}` Validation Failed\n\n" + "\n".join(errors))
         return -1
     return 0
 
