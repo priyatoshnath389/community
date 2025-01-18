@@ -7,7 +7,6 @@ flops: 73.7
 parameters: 28805473
 min_version: 8.3.59
 discussion: https://github.com/Y-T-G/community/discussions/13
-discussion: https://github.com/Y-T-G/community/discussions/12
 
 # Model
 nc: 1

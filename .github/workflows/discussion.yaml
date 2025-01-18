@@ -1,9 +1,14 @@
 name: Create Discussion for New YAML Configs
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'cfg/*/*.yaml'
   push:
     branches:
       - staging
+      - config_update
     paths:
       - 'cfg/**/*.yaml'
 
