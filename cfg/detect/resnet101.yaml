@@ -6,6 +6,7 @@ description: ResNet-101 pretrained backbone with detect head.
 flops: 236.8
 parameters: 70698259
 min_version: 8.3.59
+discussion: https://github.com/Y-T-G/community/discussions/17
 
 # Model
 nc: 1
