@@ -5,6 +5,8 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - 'cfg/*/*.yaml'
+    branches-ignore:
+      - 'staging'
 
 jobs:
   validate-yaml:
