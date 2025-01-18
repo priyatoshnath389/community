@@ -6,6 +6,7 @@ description: ConvNeXt-Tiny pretrained backbone with Segment head.
 flops: 141.1
 parameters: 33989203
 min_version: 8.3.59
+discussion: https://github.com/Y-T-G/community/discussions/25
 
 # Model
 nc: 1
