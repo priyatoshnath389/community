@@ -1,14 +1,9 @@
 name: Create Discussion for New YAML Configs
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-    paths:
-      - 'cfg/*/*.yaml'
   push:
     branches:
       - staging
-      - config_update
     paths:
       - 'cfg/**/*.yaml'
 
@@ -47,7 +42,7 @@ jobs:
         id: determine_branch
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "TARGET_BRANCH=${{ github.event.pull_request.base.ref }}" >> $GITHUB_ENV
+            echo "TARGET_BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
           else
             echo "TARGET_BRANCH=${{ github.ref }}" | sed 's|refs/heads/||' >> $GITHUB_ENV
           fi
