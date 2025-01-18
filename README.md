@@ -21,6 +21,15 @@ from ultralytics import YOLO
 model = YOLO("community/cfg/classify/convnext_tiny.yaml")
 ```
 
+## 💬 Discussion
+
+Every model configuration file has a dedicated [GitHub Discussion](https://github.com/Y-T-G/community/discussions) thread where you can:
+- Share your experiences
+- Ask questions
+- Connect with other users
+- Report issues
+- Suggest improvements
+
 ## 🤝 Contribute
 
 We welcome community contributions! 💡 To add your config, please submit a Pull Request following our [CONTRIBUTING](CONTRIBUTING.md) guidelines.

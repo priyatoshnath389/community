@@ -50,3 +50,7 @@ backbone:
 head:
   - [-1, 1, Classify, [nc]]
 ```
+
+### Post-Merge Actions
+
+Once your PR is successfully merged, a GitHub discussion thread will be automatically created and you will be tagged as the author to keep you updated on any feedback or questions from the community.
