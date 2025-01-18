@@ -6,6 +6,7 @@ description: ConvNeXt-Tiny pretrained backbone with Pose head.
 flops: 91.5
 parameters: 32732926
 min_version: 8.3.59
+discussion: https://github.com/Y-T-G/community/discussions/26
 
 # Model
 nc: 1
