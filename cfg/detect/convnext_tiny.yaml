@@ -6,6 +6,7 @@ description: ConvNeXt-Tiny pretrained backbone with Detect head.
 flops: 89.1
 parameters: 32037235
 min_version: 8.3.59
+discussion: https://github.com/Y-T-G/community/discussions/22
 
 # Model
 nc: 1
