@@ -6,6 +6,7 @@ description: Swin-T pretrained backbone with Classify head.
 flops: 49.4
 parameters: 28506235
 min_version: 8.3.59
+discussion: https://github.com/Y-T-G/community/discussions/16
 
 # Model
 nc: 1
