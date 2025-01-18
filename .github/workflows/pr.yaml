@@ -5,8 +5,6 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - 'cfg/*/*.yaml'
-    branches-ignore:
-      - 'staging'
 
 jobs:
   validate-yaml:
@@ -43,6 +41,7 @@ jobs:
           CFG_ALL_CHANGED_FILES: ${{ steps.changed-files-yaml.outputs.cfg_all_changed_files }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           PR_NUMBER: ${{ github.event.number }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: python scripts/validate_yaml.py

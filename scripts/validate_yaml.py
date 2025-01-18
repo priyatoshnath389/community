@@ -42,6 +42,7 @@ def validate_yaml(file_path):
 
     # Validate task
     folder_name = Path(file_path).parent.name
+    filename = Path(file_path).name
     if config.get('task') != folder_name:
         errors.append(f"📋 **Task**: Expected `{folder_name}`, found `{config.get('task')}`")
 
@@ -104,18 +105,24 @@ def validate_yaml(file_path):
     if not isinstance(nc, int) or nc <= 0:
         errors.append("🎯 **nc**: Must be an integer greater than 0")
 
+    os.chdir("..")
     if errors:
-        comment_on_pr("## ❌ YAML Validation Failed\n\n" + "\n".join(errors))
-        sys.exit(1)
+        comment_on_pr("## ❌ `{folder_name}/{filename}` Validation Failed\n\n" + "\n".join(errors))
+        return -1
+    return 0
 
 def main():
     yaml_files = [file for file in os.getenv('CFG_ALL_CHANGED_FILES').split() 
                   if file.endswith(('.yaml', '.yml'))]
-    if len(yaml_files) > 1:
+    if len(yaml_files) > 1 and os.getenv('PR_BRANCH') != 'staging':
         comment_on_pr("## ❌ Too Many YAML Files\n\nEach PR should only modify one YAML config file.")
         sys.exit(1)
     elif yaml_files:
-        validate_yaml(os.path.abspath(yaml_files[0]))
+        return_code = 0
+        for file in yaml_files:
+            return_code += validate_yaml(os.path.abspath(file))
+        if return_code != 0:
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()
