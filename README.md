@@ -32,7 +32,7 @@ Every model configuration file has a dedicated [GitHub Discussion](https://githu
 
 ## 🤝 Contribute
 
-We welcome community contributions! 💡 To add your config, please submit a Pull Request following our [CONTRIBUTING](CONTRIBUTING.md) guidelines.
+To contribute your config, please submit a Pull Request following our [CONTRIBUTING](CONTRIBUTING.md) guidelines.
 
 ## 📄 License
 
