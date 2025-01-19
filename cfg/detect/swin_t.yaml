@@ -6,6 +6,7 @@ description: Swin-T pretrained backbone with Detect head.
 flops: 64.8
 parameters: 31736461
 min_version: 8.3.64
+discussion: https://github.com/Y-T-G/community/discussions/30
 
 # Model
 nc: 1
