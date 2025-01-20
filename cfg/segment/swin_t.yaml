@@ -6,6 +6,7 @@ description: Swin-T pretrained backbone with Segment head.
 flops: 116.8
 parameters: 33688429
 min_version: 8.3.64
+discussion: https://github.com/Y-T-G/community/discussions/34
 
 # Model
 nc: 1
