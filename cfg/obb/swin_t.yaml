@@ -6,6 +6,7 @@ description: Swin-T pretrained backbone with OBB head.
 flops: 67.0
 parameters: 32380000
 min_version: 8.3.64
+discussion: https://github.com/Y-T-G/community/discussions/37
 
 # Model
 nc: 1
