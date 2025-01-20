@@ -1,5 +1,5 @@
 import sys
-
+import yaml
 
 def main(yaml_file, discussion_url):
     try:
@@ -9,12 +9,22 @@ def main(yaml_file, discussion_url):
 
         new_lines = []
         min_version_found = False
+        discussion_key_found = False
+
         for line in lines:
-            new_lines.append(line)
-            if "min_version:" in line and not min_version_found:
-                # Add the discussion link after min_version
-                new_lines.append(f"discussion: {discussion_url}\n")
+            if "min_version:" in line:
                 min_version_found = True
+            if "discussion:" in line:
+                new_lines.append(f"discussion: {discussion_url}\n")
+                discussion_key_found = True
+            else:
+                new_lines.append(line)
+
+        if min_version_found and not discussion_key_found:
+            for index, line in enumerate(new_lines):
+                if "min_version:" in line:
+                    new_lines.insert(index + 1, f"discussion: {discussion_url}\n")
+                    break
 
         with open(yaml_file, "w") as f:
             f.writelines(new_lines)
