@@ -139,6 +139,7 @@ def validate_yaml(file_path):
                 f"📏 **Strides**: Expected `{computed_strides}`, got `{config.get('strides')}`"
             )
     except Exception as e:
+        print(traceback.format_exc())
         errors.append(
             f"⚠️ **Model Error**: Failed to load model with min_version {min_version}: `{str(e)}`"
         )
