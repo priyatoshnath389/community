@@ -14,7 +14,7 @@ strides: [8, 16, 32]
 kpt_shape: [17, 3]
 backbone:
   # [from, repeats, module, args]
-  - [-1, 1, TorchVision, [768, "convnext_tiny", "DEFAULT", True, 2, True]]
+  - [-1, 1, TorchVision, [768, convnext_tiny, DEFAULT, True, 2, True]]
   - [0, 1, Index, [192, 4]]  # (1, 192, 80, 80) - 1
   - [0, 1, Index, [384, 6]]  # (1, 384, 40, 40) - 2
   - [0, 1, Index, [768, 8]]  # (1, 768, 20, 20) - 3

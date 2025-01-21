@@ -13,7 +13,7 @@ nc: 1
 strides: [32]
 backbone:
   # [from, repeats, module, args]
-  - [-1, 1, TorchVision, [768, "swin_t", "DEFAULT", True, 3]]  # (1, 768, 20, 20) - 0
+  - [-1, 1, TorchVision, [768, swin_t, DEFAULT, True, 3]]  # (1, 768, 20, 20) - 0
 
 head:
   - [-1, 1, Classify, [nc]]

@@ -4,6 +4,7 @@ import yaml
 import requests
 from pathlib import Path
 import subprocess
+import traceback
 
 
 def comment_on_pr(message):
@@ -28,6 +29,26 @@ def comment_on_pr(message):
     else:
         print(f"Failed to post comment: {response.status_code} - {response.text}")
 
+def get_output_shapes(model):
+    ori_len = len(model.model.model)
+    shape_list = []
+    layers = [str(layer).replace("'", "") for layer in model.yaml["backbone"] + model.yaml["head"]]
+
+    for i in range(ori_len):
+        model.model.model = model.model.model[:-1] if i > 0 else model.model.model
+        out = model.model(torch.randn(1, 3, 640, 640))
+        if isinstance(out, torch.Tensor):
+            shape_list.append(f"  - {layers[-1-i]}  # {tuple(out.shape)} - {ori_len - i - 1}")
+        else:
+            shape_list.append(f"  - {layers[-1-i]}  # {ori_len - i - 1}")
+
+    max_len = max(len(s.split("  #")[0]) for s in shape_list)
+    formatted = [s.split("  #")[0].ljust(max_len + 4) + "# " + s.split("  #")[1] for s in shape_list]
+    formatted = list(reversed(formatted))
+    formatted.insert(0, "backbone:")
+    formatted.insert(1, "  # [from, repeats, module, args]")
+    formatted.insert(len(model.yaml["backbone"]) + 2, "head:")
+    return formatted
 
 def validate_yaml(file_path):
     with open(file_path) as f:
@@ -81,6 +102,7 @@ def validate_yaml(file_path):
                 print("ultralytics directory already exists. Skipping clone.")
             os.chdir("ultralytics")
             subprocess.run(["git", "checkout", f"tags/v{min_version}"], check=True)
+            subprocess.run(["pip", "uninstall", "ultralytics", "-y"], check=True)
             subprocess.run(["pip", "install", "."], check=True)
         except subprocess.CalledProcessError:
             errors.append(f"📦 **min_version**: Invalid version `{min_version}`")
@@ -119,6 +141,7 @@ def validate_yaml(file_path):
                 f"📏 **Strides**: Expected `{computed_strides}`, got `{config.get('strides')}`"
             )
     except Exception as e:
+        print(traceback.format_exc())
         errors.append(
             f"⚠️ **Model Error**: Failed to load model with min_version {min_version}: `{str(e)}`"
         )
@@ -144,7 +167,7 @@ def main():
         for file in os.getenv("CFG_ALL_CHANGED_FILES").split()
         if file.endswith((".yaml", ".yml"))
     ]
-    if len(yaml_files) > 1 and os.getenv("PR_BRANCH") != "staging":
+    if len(yaml_files) > 1:
         comment_on_pr(
             "## ❌ Too Many YAML Files\n\nEach PR should only modify one YAML config file."
         )
