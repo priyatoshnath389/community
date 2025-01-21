@@ -4,6 +4,7 @@ import yaml
 import requests
 from pathlib import Path
 import subprocess
+import traceback
 
 
 def comment_on_pr(message):
@@ -101,6 +102,7 @@ def validate_yaml(file_path):
                 print("ultralytics directory already exists. Skipping clone.")
             os.chdir("ultralytics")
             subprocess.run(["git", "checkout", f"tags/v{min_version}"], check=True)
+            subprocess.run(["pip", "uninstall", "ultralytics", "-y"], check=True)
             subprocess.run(["pip", "install", "."], check=True)
         except subprocess.CalledProcessError:
             errors.append(f"📦 **min_version**: Invalid version `{min_version}`")
