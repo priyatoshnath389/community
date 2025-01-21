@@ -167,7 +167,9 @@ def main():
         for file in os.getenv("CFG_ALL_CHANGED_FILES").split()
         if file.endswith((".yaml", ".yml"))
     ]
-    if len(yaml_files) > 1 and os.getenv("PR_BRANCH") != "staging":
+    if os.getenv("PR_BRANCH") != "staging":
+        sys.exit(0)
+    if len(yaml_files) > 1:
         comment_on_pr(
             "## ❌ Too Many YAML Files\n\nEach PR should only modify one YAML config file."
         )
