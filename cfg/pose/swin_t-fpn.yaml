@@ -6,6 +6,7 @@ description: Swin-T pretrained backbone with YOLO11 FPN neck and Pose head.
 flops: 76.2
 parameters: 40896088
 min_version: 8.3.64
+discussion: https://github.com/Y-T-G/community/discussions/48
 
 # Model
 nc: 1
