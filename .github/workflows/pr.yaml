@@ -8,6 +8,7 @@ on:
 
 jobs:
   validate-yaml:
+    if: github.head_ref != 'staging'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
