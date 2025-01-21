@@ -6,6 +6,7 @@ description: MobileNetv3-Large pretrained backbone with YOLO11 FPN neck and Dete
 flops: 16.3
 parameters: 14505363
 min_version: 8.3.59
+discussion: https://github.com/Y-T-G/community/discussions/51
 
 # Model
 nc: 1
