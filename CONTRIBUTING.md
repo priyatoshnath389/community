@@ -17,7 +17,7 @@ Each PR should only contain a single YAML config. When submitting a model config
     - Maximum 1000 words.
 5. **min_version**: Must be a valid Ultralytics package version.
 6. **flops** and **parameters**: You can get this using `model.info()` in Ultralytics.
-7. **strides**: Must match the computed stride values. If you don't know this, you can submit leave it blank and the GitHub Actions will comment on your PR with the correct value which you can used to update.
+7. **strides**: Must match the computed stride values. If you don't know this, you can submit leave it blank and the GitHub Actions will comment on your PR with the correct value which you can use to update.
 8. **nc** (number of classes): Must be a positive integer.
 
 ### Automated Checks
