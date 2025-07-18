@@ -2,57 +2,54 @@
 author: Y-T-G
 task: detect
 keywords: [transformer, swin, fpn, yolo11, small-object]
-description: Swin-T backbone with YOLOv11 FPN neck (including extra P2) and Detect head for 7 blood-cell classes
+description: Swin-T backbone with YOLOv11 PAN-FPN neck (including extra P2) and Detect head for 7 blood-cell classes
 flops: 73.7
 parameters: 40200397
 min_version: 8.3.64
 
-# Model
-nc: 7
-strides: [4, 8, 16, 32]  # P2, P3, P4, P5
-scales:
-  default: [1.00, 1.00, 1024]
+detect:
+  nc: 7
+  strides: [4, 8, 16, 32]  # P2, P3, P4, P5
 
 # ---------------- Backbone ----------------
 backbone:
-  - [-1, 1, TorchVision, [768, swin_t, DEFAULT, True, 5, True]]    #  0: Swin-T backbone output
-  # Extract stage outputs as C2, C3, C4, C5
-  - [0, 1, Index, [192, 4]]                                        #  1: stage 2 → P2 features (192,80,80)
-  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]               #  2: permute to NCHW
-  - [0, 1, Index, [384, 6]]                                        #  3: stage 3 → P3 features (384,40,40)
-  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]               #  4: permute to NCHW
-  - [0, 1, Index, [768, 8]]                                        #  5: stage 4 → P4 features (768,20,20)
-  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]               #  6: permute to NCHW
-  - [-1, 1, SPPF, [768, 5]]                                        #  7: stage 5 processed → P5 features (768,20,20)
+  - [-1, 1, TorchVision, [768, swin_t, DEFAULT, True, 5, True]]    #  0: Swin-T backbone
+  - [0, 1, Index, [192, 4]]                                        #  1: stage2 → P2 features
+  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]
+  - [0, 1, Index, [384, 6]]                                        #  3: stage3 → P3 features
+  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]
+  - [0, 1, Index, [768, 8]]                                        #  5: stage4 → P4 features
+  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]
+  - [-1, 1, SPPF, [768, 5]]                                        #  7: stage5 → P5 features
 
 # ---------------- Neck (PAN-FPN) ----------------
-head:
+pan_fpn:
   # Top-Down Path
-  - [-1, 1, nn.Upsample, [None, 2, nearest]]                       #  8: upsample P5→P4
-  - [[-1, 6], 1, Concat, [1]]                                      #  9: concat with P4
-  - [-1, 2, C3k2, [384, False]]                                    # 10: refine P4
+  - [-1, 1, nn.Upsample, [None, 2, nearest]]  # P5→P4
+  - [[-1, 6], 1, Concat, [1]]
+  - [-1, 2, C3k2, [384, False]]
 
-  - [-1, 1, nn.Upsample, [None, 2, nearest]]                       # 11: upsample P4→P3
-  - [[-1, 4], 1, Concat, [1]]                                      # 12: concat with P3
-  - [-1, 2, C3k2, [192, False]]                                    # 13: refine P3
+  - [-1, 1, nn.Upsample, [None, 2, nearest]]  # P4→P3
+  - [[-1, 4], 1, Concat, [1]]
+  - [-1, 2, C3k2, [192, False]]
 
-  - [-1, 1, nn.Upsample, [None, 2, nearest]]                       # 14: upsample P3→P2
-  - [[-1, 2], 1, Concat, [1]]                                      # 15: concat with P2
-  - [-1, 2, C3k2, [96, False]]                                     # 16: refine P2
+  - [-1, 1, nn.Upsample, [None, 2, nearest]]  # P3→P2
+  - [[-1, 2], 1, Concat, [1]]
+  - [-1, 2, C3k2, [96, False]]  # P2 branch
 
   # Bottom-Up Path
-  - [-1, 1, Conv, [96, 3, 2]]                                      # 17: downsample P2→P3
-  - [[-1, 13], 1, Concat, [1]]                                     # 18: concat with P3
-  - [-1, 2, C3k2, [192, False]]                                    # 19: refine P3
+  - [-1, 1, Conv, [96, 3, 2]]
+  - [[-1, 13], 1, Concat, [1]]
+  - [-1, 2, C3k2, [192, False]]
 
-  - [-1, 1, Conv, [192, 3, 2]]                                     # 20: downsample P3→P4
-  - [[-1, 10], 1, Concat, [1]]                                     # 21: concat with P4
-  - [-1, 2, C3k2, [384, False]]                                    # 22: refine P4
+  - [-1, 1, Conv, [192, 3, 2]]
+  - [[-1, 10], 1, Concat, [1]]
+  - [-1, 2, C3k2, [384, False]]
 
-  - [-1, 1, Conv, [384, 3, 2]]                                     # 23: downsample P4→P5
-  - [[-1, 7], 1, Concat, [1]]                                      # 24: concat with P5
-  - [-1, 2, C3k2, [768, True]]                                     # 25: refine P5
+  - [-1, 1, Conv, [384, 3, 2]]
+  - [[-1, 7], 1, Concat, [1]]
+  - [-1, 2, C3k2, [768, True]]
 
 # ---------------- Head (Detect) ----------------
-  - [[16, 19, 22, 25], 1, Detect, [nc]]                            # 26: predict boxes on P2, P3, P4, P5
-
+detect_head:
+  - [[16, 19, 22, 25], 1, Detect, [nc]]  # P2,P3,P4,P5
