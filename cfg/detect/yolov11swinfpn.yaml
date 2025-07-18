@@ -3,14 +3,13 @@ author: Y-T-G
 task: detect
 keywords: [transformer, swin, bifpn, fpn, yolo11, small-object]
 description: Swin-T backbone with YOLOv11 BiFPN neck (including extra P2) and Detect head for 7 blood-cell classes
-# FLOPs and parameters will be slightly higher than the original due to BiFPN connections.
 min_version: 8.3.64
 
 # Model
 nc: 7
 strides: [4, 8, 16, 32]  # P2, P3, P4, P5
 scales:
-  default: [1.00, 1.00, 1024]
+  s: [1.00, 1.00, 1024]  # <-- Changed 'default' to 's'
 
 # ---------------- Backbone ----------------
 backbone:
