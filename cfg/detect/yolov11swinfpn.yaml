@@ -9,47 +9,48 @@ min_version: 8.3.64
 
 detect:
   nc: 7
-  strides: [4, 8, 16, 32]  # P2, P3, P4, P5
 
-# ---------------- Backbone ----------------
+# Model
+# Format: [from, number, module, args]
+depth_multiple: 1.0
+width_multiple: 1.0
+
 backbone:
-  - [-1, 1, TorchVision, [768, swin_t, DEFAULT, True, 5, True]]    #  0: Swin-T backbone
-  - [0, 1, Index, [192, 4]]                                        #  1: stage2 → P2 features
-  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]
-  - [0, 1, Index, [384, 6]]                                        #  3: stage3 → P3 features
-  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]
-  - [0, 1, Index, [768, 8]]                                        #  5: stage4 → P4 features
-  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]
-  - [-1, 1, SPPF, [768, 5]]                                        #  7: stage5 → P5 features
+  - [-1, 1, TorchVision, [768, swin_t, DEFAULT, True, 5, True]]    # 0: Swin-T
+  - [0, 1, Index, [192, 4]]                                        # 1: P2 from stage2
+  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]               # 2: to NCHW
+  - [0, 1, Index, [384, 6]]                                        # 3: P3 from stage3
+  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]               # 4: to NCHW
+  - [0, 1, Index, [768, 8]]                                        # 5: P4 from stage4
+  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]               # 6: to NCHW
+  - [-1, 1, SPPF, [768, 5]]                                        # 7: P5
 
-# ---------------- Neck (PAN-FPN) ----------------
-pan_fpn:
-  # Top-Down Path
-  - [-1, 1, nn.Upsample, [None, 2, nearest]]  # P5→P4
-  - [[-1, 6], 1, Concat, [1]]
-  - [-1, 2, C3k2, [384, False]]
+head:
+  # PAN-FPN Top-Down
+  - [-1, 1, nn.Upsample, [None, 2, nearest]]                       # 8: P5→P4
+  - [[-1, 6], 1, Concat, [1]]                                      # 9
+  - [-1, 2, C3k2, [384, False]]                                    # 10
 
-  - [-1, 1, nn.Upsample, [None, 2, nearest]]  # P4→P3
-  - [[-1, 4], 1, Concat, [1]]
-  - [-1, 2, C3k2, [192, False]]
+  - [-1, 1, nn.Upsample, [None, 2, nearest]]                       # 11: P4→P3
+  - [[-1, 4], 1, Concat, [1]]                                      # 12
+  - [-1, 2, C3k2, [192, False]]                                    # 13
 
-  - [-1, 1, nn.Upsample, [None, 2, nearest]]  # P3→P2
-  - [[-1, 2], 1, Concat, [1]]
-  - [-1, 2, C3k2, [96, False]]  # P2 branch
+  - [-1, 1, nn.Upsample, [None, 2, nearest]]                       # 14: P3→P2
+  - [[-1, 2], 1, Concat, [1]]                                      # 15
+  - [-1, 2, C3k2, [96, False]]                                     # 16
 
-  # Bottom-Up Path
-  - [-1, 1, Conv, [96, 3, 2]]
-  - [[-1, 13], 1, Concat, [1]]
-  - [-1, 2, C3k2, [192, False]]
+  # PAN-FPN Bottom-Up
+  - [-1, 1, Conv, [96, 3, 2]]                                      # 17: P2→P3
+  - [[-1, 13], 1, Concat, [1]]                                     # 18
+  - [-1, 2, C3k2, [192, False]]                                    # 19
 
-  - [-1, 1, Conv, [192, 3, 2]]
-  - [[-1, 10], 1, Concat, [1]]
-  - [-1, 2, C3k2, [384, False]]
+  - [-1, 1, Conv, [192, 3, 2]]                                     # 20: P3→P4
+  - [[-1, 10], 1, Concat, [1]]                                     # 21
+  - [-1, 2, C3k2, [384, False]]                                    # 22
 
-  - [-1, 1, Conv, [384, 3, 2]]
-  - [[-1, 7], 1, Concat, [1]]
-  - [-1, 2, C3k2, [768, True]]
+  - [-1, 1, Conv, [384, 3, 2]]                                     # 23: P4→P5
+  - [[-1, 7], 1, Concat, [1]]                                      # 24
+  - [-1, 2, C3k2, [768, True]]                                     # 25
 
-# ---------------- Head (Detect) ----------------
-detect_head:
-  - [[16, 19, 22, 25], 1, Detect, [nc]]  # P2,P3,P4,P5
+  # Detect head on P2, P3, P4, P5
+  - [[16, 19, 22, 25], 1, Detect, [nc]]                            # 26
