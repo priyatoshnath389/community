@@ -2,7 +2,7 @@
 author: Y-T-G
 task: detect
 keywords: [cnn, yolo11, small-object]
-description: YOLO11 object detection model with an extra P2 scale for small object detecton.
+description: YOLO11 object detection model with an extra P2 scale for small object detection.
 flops:
   n: 11.4
   s: 29.7
@@ -83,15 +83,5 @@ head:
   - [[-1, 10], 1, Concat, [1]]                  # (1, 1024, 20, 20) - 27
   - [-1, 2, C3k2, [1024, True]]                 # (1, 512, 20, 20) - 28
 
-    # Detection Head (P2, P3, P4, P5)
-  - [[19, 22, 25, 28], 1, Detect, {
-      nc: 80,
-      anchors: [[12,16, 19,36, 40,28],
-                [36,75, 76,55, 72,146],
-                [142,110, 192,243, 459,401],
-                [459,401, 666,611, 814,737]],
-      iou_t: 0.20,
-      dynamic: true,
-      dfl: true,
-      max_det: 300
-    }]
+  # Detection Head (P2, P3, P4, P5)
+  - [[19, 22, 25, 28], 1, Detect, [nc]]         # 29
