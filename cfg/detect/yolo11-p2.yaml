@@ -17,6 +17,7 @@ parameters:
   x: 57849456
 min_version: 8.3.0
 discussion: [invalid url, do not cite]
+scale: s
 
 # Model
 nc: 80
