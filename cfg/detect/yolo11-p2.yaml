@@ -18,6 +18,7 @@ parameters:
 min_version: 8.3.0
 discussion: [invalid url, do not cite]
 scale: s
+model_scale: s 
 
 # Model
 nc: 80
