@@ -9,7 +9,7 @@ min_version: 8.3.64
 
 # Model
 nc: 7
-scale: n
+scale: 'n'
 scales:
   n: [0.50, 0.25, 1024]  # YOLOv11-n (nano model)
 
