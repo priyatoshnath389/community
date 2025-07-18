@@ -11,7 +11,7 @@ min_version: 8.3.64
 nc: 7
 scale: 'n'
 scales:
-  n: [0.50, 0.25, 1024]  # YOLOv11-n (nano model)
+  n: [0.33, 0.25, 512]  # YOLOv11-n (nano model)
 
 # ---------------- Backbone ----------------
 backbone:
