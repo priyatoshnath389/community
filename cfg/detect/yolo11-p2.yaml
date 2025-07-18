@@ -19,6 +19,9 @@ min_version: 8.3.0
 discussion: [invalid url, do not cite]
 scale: s
 model_scale: s 
+# Depth/width multipliers for the 's' variant (small model)
+depth_multiple: 0.33
+width_multiple: 0.50
 
 # Model
 nc: 80
