@@ -1,40 +1,57 @@
 # Metadata
 author: Y-T-G
 task: detect
-keywords: [transformer, swin, fpn]
-description: Swin-T pretrained backbone with YOLO11 FPN neck and Detect head.
-flops: 73.7
-parameters: 40200397
+keywords: [transformer, swin, fpn, p2]
+description: Swin-T pretrained backbone with YOLO11 FPN neck, Detect head, and added P2 scale for small object detection.
+flops: 75.0  # Estimated, as P2 adds computational overhead
+parameters: 40250397  # Estimated, slight increase due to P2
 min_version: 8.3.64
 discussion: https://github.com/Y-T-G/community/discussions/41
 
-# Model
-nc: 1
-strides: [8, 16, 32]
+# Parameters
+nc: 1  # Number of classes
+strides: [4, 8, 16, 32]  # Updated to include P2
 scales:
   # [depth, width, max_channels]
   default: [1.00, 1.00, 1024]
+
+# YOLO11 backbone with Swin-T and P2 scale
 backbone:
   # [from, repeats, module, args]
-  - [-1, 1, TorchVision, [768, swin_t, DEFAULT, True, 5, True]]    #  0
-  - [0, 1, Index, [192, 4]]                                        #  (1, 80, 80, 192) - 1
-  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]               #  (1, 192, 80, 80) - 2
-  - [0, 1, Index, [384, 6]]                                        #  (1, 40, 40, 384) - 3
-  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]               #  (1, 384, 40, 40) - 4
-  - [0, 1, Index, [768, 8]]                                        #  (1, 20, 20, 768) - 5
-  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]               #  (1, 768, 20, 20) - 6
-  - [-1, 1, SPPF, [768, 5]]                                        #  (1, 768, 20, 20) - 7
+  - [-1, 1, TorchVision, [768, swin_t, DEFAULT, True, 5, True]]  # 0: Swin-T backbone
+  - [0, 1, Index, [96, 2]]  # 1: P2 features (stride 4, 160x160 for 640x640 input)
+  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]  # 2: Permute to (1, 96, 160, 160)
+  - [0, 1, Index, [192, 4]]  # 3: P3 features (stride 8, 80x80)
+  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]  # 4: Permute to (1, 192, 80, 80)
+  - [0, 1, Index, [384, 6]]  # 5: P4 features (stride 16, 40x40)
+  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]  # 6: Permute to (1, 384, 40, 40)
+  - [0, 1, Index, [768, 8]]  # 7: P5 features (stride 32, 20x20)
+  - [-1, 1, torchvision.ops.Permute, [[0, 3, 1, 2]]]  # 8: Permute to (1, 768, 20, 20)
+  - [-1, 1, SPPF, [768, 5]]  # 9: Spatial Pyramid Pooling (1, 768, 20, 20)
+
+# YOLO11 head with P2 scale
 head:
-  - [-1, 1, nn.Upsample, [None, 2, nearest]]                       #  (1, 768, 40, 40) - 8
-  - [[-1, 4], 1, Concat, [1]]                                      #  (1, 1152, 40, 40) - 9
-  - [-1, 2, C3k2, [384, False]]                                    #  (1, 384, 40, 40) - 10
-  - [-1, 1, nn.Upsample, [None, 2, nearest]]                       #  (1, 384, 80, 80) - 11
-  - [[-1, 2], 1, Concat, [1]]                                      #  (1, 576, 80, 80) - 12
-  - [-1, 2, C3k2, [192, False]]                                    #  (1, 192, 80, 80) - 13
-  - [-1, 1, Conv, [192, 3, 2]]                                     #  (1, 192, 40, 40) - 14
-  - [[-1, -5], 1, Concat, [1]]                                     #  (1, 576, 40, 40) - 15
-  - [-1, 2, C3k2, [384, False]]                                    #  (1, 384, 40, 40) - 16
-  - [-1, 1, Conv, [384, 3, 2]]                                     #  (1, 384, 20, 20) - 17
-  - [[-1, -11], 1, Concat, [1]]                                    #  (1, 1152, 20, 20) - 18
-  - [-1, 2, C3k2, [768, True]]                                     #  (1, 768, 20, 20) - 19
-  - [[-7, -4, -1], 1, Detect, [nc]]                                #  20
+  # Top-Down Path (FPN)
+  - [-1, 1, nn.Upsample, [None, 2, 'nearest']]  # 10: Upsample P5 to (1, 768, 40, 40)
+  - [[-1, 6], 1, Concat, [1]]  # 11: Concat with P4 backbone (768+384=1152, 40, 40)
+  - [-1, 2, C3k2, [384, False]]  # 12: P4 head (1, 384, 40, 40)
+  - [-1, 1, nn.Upsample, [None, 2, 'nearest']]  # 13: Upsample to (1, 384, 80, 80)
+  - [[-1, 4], 1, Concat, [1]]  # 14: Concat with P3 backbone (384+192=576, 80, 80)
+  - [-1, 2, C3k2, [192, False]]  # 15: P3 head (1, 192, 80, 80)
+  - [-1, 1, nn.Upsample, [None, 2, 'nearest']]  # 16: Upsample to (1, 192, 160, 160)
+  - [[-1, 2], 1, Concat, [1]]  # 17: Concat with P2 backbone (192+96=288, 160, 160)
+  - [-1, 2, C3k2, [128, False]]  # 18: P2 head (1, 128, 160, 160)
+
+  # Bottom-Up Path (PANet)
+  - [-1, 1, Conv, [128, 3, 2]]  # 19: Downsample P2 to (1, 128, 80, 80)
+  - [[-1, 15], 1, Concat, [1]]  # 20: Concat with P3 head (128+192=320, 80, 80)
+  - [-1, 2, C3k2, [192, False]]  # 21: P3 enhanced (1, 192, 80, 80)
+  - [-1, 1, Conv, [192, 3, 2]]  # 22: Downsample to (1, 192, 40, 40)
+  - [[-1, 12], 1, Concat, [1]]  # 23: Concat with P4 head (192+384=576, 40, 40)
+  - [-1, 2, C3k2, [384, False]]  # 24: P4 enhanced (1, 384, 40, 40)
+  - [-1, 1, Conv, [384, 3, 2]]  # 25: Downsample to (1, 384, 20, 20)
+  - [[-1, 9], 1, Concat, [1]]  # 26: Concat with P5 SPPF (384+768=1152, 20, 20)
+  - [-1, 2, C3k2, [768, True]]  # 27: P5 enhanced (1, 768, 20, 20)
+
+  # Detection Head
+  - [[18, 21, 24, 27], 1, Detect, [nc]]  # 28: Detect(P2, P3, P4, P5)
